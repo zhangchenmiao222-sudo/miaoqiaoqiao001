@@ -110,3 +110,14 @@ export interface SearchParams {
   page?: number;
   limit?: number;
 }
+
+/** 飞书 OAuth 登录请求 */
+export interface LoginRequest {
+  code: string;
+}
+
+/** 飞书 OAuth 登录响应 */
+export interface LoginResponse {
+  user: User;
+  token: string;
+}
