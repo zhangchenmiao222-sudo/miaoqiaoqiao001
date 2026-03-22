@@ -1,6 +1,10 @@
 import { Router } from 'express';
+import multer from 'multer';
 import { pinyin } from 'pinyin-pro';
 import type { Item, ItemCategory, ItemStatus, DogSearchResult } from '../../../shared/types.js';
+
+// 图片存内存（mock），生产环境替换为 OSS/本地磁盘
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
 const router = Router();
 
@@ -316,6 +320,25 @@ router.put('/:id', (req, res) => {
   MOCK_ITEMS[idx].lastVerifiedAt = new Date().toISOString();
   const { aliases, pinyinFull, pinyinInitials, ...item } = MOCK_ITEMS[idx];
   res.json(item);
+});
+
+// POST /api/items/:id/photo — 拍照上传，关联物品位置记录
+router.post('/:id/photo', upload.single('photo'), (req, res) => {
+  const idx = MOCK_ITEMS.findIndex((i) => i.id === req.params.id);
+  if (idx === -1) {
+    return res.status(404).json({ error: { code: 'NOT_FOUND', message: '物品不存在' } });
+  }
+  if (!req.file) {
+    return res.status(400).json({ error: { code: 'NO_FILE', message: '未接收到图片' } });
+  }
+  // Mock：将图片转为 base64 data URL 存入 imageUrl（生产环境改为上传 OSS 返回 URL）
+  const base64 = req.file.buffer.toString('base64');
+  const dataUrl = `data:${req.file.mimetype};base64,${base64}`;
+  MOCK_ITEMS[idx].imageUrl = dataUrl;
+  MOCK_ITEMS[idx].lastVerifiedAt = new Date().toISOString();
+  MOCK_ITEMS[idx].updatedAt = new Date().toISOString();
+  const { aliases, pinyinFull, pinyinInitials, ...item } = MOCK_ITEMS[idx];
+  res.json({ imageUrl: dataUrl, item });
 });
 
 export default router;

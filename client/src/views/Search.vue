@@ -94,11 +94,17 @@
 
     <!-- ===== 普通模式：搜索结果 ===== -->
     <template v-else-if="!isDogMode">
-      <van-empty
-        v-if="!loading && searched && results.length === 0 && voiceState === 'idle'"
-        image="search"
-        description="没有找到相关物品"
-      />
+      <!-- Step3：无结果上下文提示 -->
+      <div v-if="!loading && searched && results.length === 0 && voiceState === 'idle'" class="empty-ctx">
+        <van-empty image="search" description="没有找到相关物品" />
+        <div class="ctx-hints">
+          <p class="ctx-title">试试这些方法</p>
+          <van-cell-group inset>
+            <van-cell title="换个关键词" label="尝试别名、拼音或口语化描述" icon="edit" is-link @click="clearSearch" />
+            <van-cell title="切换到分类浏览" label="按区域或类别查找物品" icon="apps-o" is-link to="/browse" />
+          </van-cell-group>
+        </div>
+      </div>
       <van-list
         v-model:loading="loading"
         :finished="finished"
@@ -247,6 +253,12 @@ async function fetchPage(page: number) {
   }
 }
 
+function clearSearch() {
+  keyword.value = '';
+  searched.value = false;
+  results.value = [];
+}
+
 onMounted(() => { if (keyword.value) doSearch(); });
 </script>
 
@@ -287,4 +299,8 @@ onMounted(() => { if (keyword.value) doSearch(); });
 
 .search-tips { padding: 16px; }
 .tips-title { font-size: 13px; color: #969799; margin-bottom: 8px; padding-left: 4px; }
+
+.empty-ctx { padding-bottom: 16px; }
+.ctx-hints { padding: 0 0 16px; }
+.ctx-title { font-size: 13px; color: #969799; padding: 8px 16px 4px; }
 </style>

@@ -58,6 +58,16 @@ export async function getItemsByFilter(params: Partial<SearchParams>): Promise<P
   return data;
 }
 
+/** 上传物品位置照片 */
+export async function uploadItemPhoto(id: string, file: File): Promise<{ imageUrl: string; item: Item }> {
+  const form = new FormData();
+  form.append('photo', file);
+  const { data } = await http.post(`/items/${id}/photo`, form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return data;
+}
+
 /** 按犬只编号查询，结果按类型分组 */
 export async function searchByDogId(dogId: string): Promise<DogSearchResult> {
   const { data } = await http.get(`/items/dog/${encodeURIComponent(dogId)}`);
