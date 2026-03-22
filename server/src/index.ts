@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import itemRoutes from './routes/items.js';
 import zoneRoutes from './routes/zones.js';
+import approvalRoutes from './routes/approval.js';
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 // Routes
 app.use('/api/items', itemRoutes);
 app.use('/api/zones', zoneRoutes);
+app.use('/api/approval', approvalRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

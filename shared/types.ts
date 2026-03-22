@@ -122,3 +122,22 @@ export interface DogSearchResult {
     items: Item[];
   }[];
 }
+
+/** 管控物品领用申请 */
+export interface ApprovalApplyRequest {
+  itemId: string;
+  itemName: string;
+  quantity: number;
+  purpose: string;
+  returnDate: string;
+}
+
+/** 审批状态 */
+export type ApprovalStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELED';
+
+/** 审批实例响应 */
+export interface ApprovalInstance {
+  instanceCode: string;
+  status: ApprovalStatus;
+  message?: string;
+}

@@ -38,6 +38,11 @@ const router = createRouter({
       name: 'Onboarding',
       component: () => import('@/views/Onboarding.vue'),
     },
+    {
+      path: '/apply',
+      name: 'ApplyControlled',
+      component: () => import('@/views/ApplyControlled.vue'),
+    },
   ],
 });
 
