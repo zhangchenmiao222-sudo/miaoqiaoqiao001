@@ -52,23 +52,38 @@
         class="factory-svg"
         :style="svgStyle"
       >
-        <!-- 地面 -->
-        <rect x="0" y="0" :width="VP_W" :height="VP_H" fill="#ece8dc" />
+        <!-- 地面（室外） -->
+        <rect x="0" y="0" :width="VP_W" :height="VP_H" fill="#c8c4bb" />
 
-        <!-- 外墙 -->
-        <rect x="20" y="20" :width="VP_W - 40" :height="VP_H - 40"
-          fill="none" stroke="#444" stroke-width="4" />
+        <!-- ① 左侧主楼（培训室 / 办公 / 实验室） -->
+        <rect x="18" y="18" width="418" height="450" fill="#ece8dc" stroke="#555" stroke-width="3" rx="2"/>
 
-        <!-- 内走廊区域 -->
-        <rect x="21" y="280" :width="VP_W - 42" height="42" fill="#ddd8cc" opacity="0.6" />
-        <text :x="VP_W / 2" y="305" text-anchor="middle" font-size="10" fill="#999">— 走廊 —</text>
+        <!-- ② 右侧仓储楼（库房 / 冷库 / 小库房） -->
+        <rect x="443" y="18" width="119" height="450" fill="#ece8dc" stroke="#555" stroke-width="3" rx="2"/>
 
-        <!-- 区域标题 -->
-        <text x="215"  y="22" text-anchor="middle" font-size="9" fill="#666" font-weight="bold">生 产 区</text>
-        <text x="530"  y="22" text-anchor="middle" font-size="9" fill="#666" font-weight="bold">实验室区</text>
-        <text x="820"  y="22" text-anchor="middle" font-size="9" fill="#666" font-weight="bold">仓 储 区</text>
-        <text x="820" y="322" text-anchor="middle" font-size="9" fill="#666" font-weight="bold">犬 舍 区</text>
-        <text x="330" y="322" text-anchor="middle" font-size="9" fill="#666" font-weight="bold">办 公 区</text>
+        <!-- ③ 底部生产楼（生产 / 犬舍 / 工程部） -->
+        <rect x="18" y="474" width="544" height="328" fill="#ece8dc" stroke="#555" stroke-width="3" rx="2"/>
+
+        <!-- 分隔虚线：主楼内部行间 -->
+        <line x1="18"  y1="160" x2="436" y2="160" stroke="#bbb" stroke-width="1" stroke-dasharray="5,4"/>
+        <line x1="18"  y1="253" x2="436" y2="253" stroke="#bbb" stroke-width="1" stroke-dasharray="5,4"/>
+        <line x1="18"  y1="355" x2="436" y2="355" stroke="#bbb" stroke-width="1" stroke-dasharray="5,4"/>
+        <!-- 分隔线：主楼与仓储楼内部行间 -->
+        <line x1="443" y1="228" x2="562" y2="228" stroke="#bbb" stroke-width="1" stroke-dasharray="5,4"/>
+        <line x1="443" y1="333" x2="562" y2="333" stroke="#bbb" stroke-width="1" stroke-dasharray="5,4"/>
+        <!-- 分隔线：生产楼内部行间 -->
+        <line x1="18"  y1="578" x2="380" y2="578" stroke="#bbb" stroke-width="1" stroke-dasharray="5,4"/>
+        <line x1="18"  y1="675" x2="562" y2="675" stroke="#bbb" stroke-width="1" stroke-dasharray="5,4"/>
+
+        <!-- 区域标签 -->
+        <text x="375" y="34"  text-anchor="middle" font-size="8" fill="#999" font-weight="bold">办 公 区</text>
+        <text x="370" y="274" text-anchor="middle" font-size="8" fill="#666" font-weight="bold">实 验 室 区</text>
+        <text x="502" y="34"  text-anchor="middle" font-size="8" fill="#888" font-weight="bold">仓 储 区</text>
+        <text x="200" y="492" text-anchor="middle" font-size="8" fill="#888" font-weight="bold">生 产 区</text>
+        <text x="473" y="492" text-anchor="middle" font-size="8" fill="#888" font-weight="bold">犬 舍 区</text>
+
+        <!-- 总面积标注 -->
+        <text x="375" y="152" text-anchor="middle" font-size="8" fill="#aaa">厂区总面积：1012.39 m²</text>
 
         <!-- 房间 -->
         <g
@@ -180,11 +195,11 @@
           </pattern>
         </defs>
 
-        <!-- 指北针 -->
-        <g transform="translate(960, 46)">
-          <circle cx="0" cy="0" r="14" fill="white" stroke="#aaa" stroke-width="1" />
-          <polygon points="0,-11 4,4 0,1 -4,4" fill="#e53935" />
-          <polygon points="0,11 4,-4 0,-1 -4,-4" fill="#888" />
+        <!-- 指北针（左侧主楼顶部留白区） -->
+        <g transform="translate(60, 85)">
+          <circle cx="0" cy="0" r="15" fill="white" stroke="#aaa" stroke-width="1" opacity="0.9"/>
+          <polygon points="0,-12 4,5 0,1 -4,5" fill="#e53935" />
+          <polygon points="0,12 4,-5 0,-1 -4,-5" fill="#999" />
           <text x="0" y="-4" text-anchor="middle" font-size="7" fill="#333" font-weight="bold">N</text>
         </g>
       </svg>
