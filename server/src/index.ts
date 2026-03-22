@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import itemRoutes from './routes/items.js';
+import zoneRoutes from './routes/zones.js';
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/items', itemRoutes);
+app.use('/api/zones', zoneRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

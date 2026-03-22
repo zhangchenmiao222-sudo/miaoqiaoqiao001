@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { PaginatedResponse, Item, SearchParams, ErrorResponse } from '@shared/types';
+import type { PaginatedResponse, Item, SearchParams, ErrorResponse, Zone } from '@shared/types';
 
 const http = axios.create({
   baseURL: '/api',
@@ -34,6 +34,27 @@ export async function searchItems(params: SearchParams): Promise<PaginatedRespon
 /** 获取物品详情 */
 export async function getItem(id: string): Promise<Item> {
   const { data } = await http.get(`/items/${id}`);
+  return data;
+}
+
+/** 更新物品位置 */
+export async function updateItemLocation(
+  id: string,
+  payload: { zoneId: string; locationDetail: string },
+): Promise<Item> {
+  const { data } = await http.put(`/items/${id}`, payload);
+  return data;
+}
+
+/** 获取所有区域 */
+export async function getZones(): Promise<Zone[]> {
+  const { data } = await http.get('/zones');
+  return data;
+}
+
+/** 按区域或类别获取物品 */
+export async function getItemsByFilter(params: Partial<SearchParams>): Promise<PaginatedResponse<Item>> {
+  const { data } = await http.get('/items', { params });
   return data;
 }
 
