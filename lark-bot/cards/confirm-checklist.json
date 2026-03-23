@@ -1,0 +1,57 @@
+{
+  "config": {
+    "wide_screen_mode": true
+  },
+  "header": {
+    "title": {
+      "tag": "plain_text",
+      "content": "📋 待确认物品清单"
+    },
+    "template": "orange"
+  },
+  "elements": [
+    {
+      "tag": "div",
+      "text": {
+        "tag": "lark_md",
+        "content": "以下物品位置信息已超过 **{{threshold_days}}天** 未确认，请核实："
+      }
+    },
+    {
+      "tag": "hr"
+    },
+    {
+      "tag": "div",
+      "text": {
+        "tag": "lark_md",
+        "content": "{{item_list}}"
+      }
+    },
+    {
+      "tag": "action",
+      "actions": [
+        {
+          "tag": "button",
+          "text": {
+            "tag": "plain_text",
+            "content": "位置正确"
+          },
+          "type": "primary",
+          "value": {
+            "action": "confirm_location",
+            "item_ids": "{{item_ids}}"
+          }
+        },
+        {
+          "tag": "button",
+          "text": {
+            "tag": "plain_text",
+            "content": "需要更新"
+          },
+          "type": "default",
+          "url": "{{h5_base_url}}/item/{{first_item_id}}"
+        }
+      ]
+    }
+  ]
+}

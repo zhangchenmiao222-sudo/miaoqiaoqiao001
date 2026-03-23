@@ -55,6 +55,7 @@ export interface Item {
   lastVerifiedBy: string;
   imageUrl?: string;
   isControlled: boolean;        // 是否管控品
+  dogId?: string;               // 关联犬只编号，如 K-027
   createdAt: string;
   updatedAt: string;
 }
@@ -103,10 +104,40 @@ export interface ErrorResponse {
 
 /** 搜索请求参数 */
 export interface SearchParams {
-  keyword: string;
+  keyword?: string;
   category?: ItemCategory;
   zoneId?: string;
   status?: ItemStatus;
+  dogId?: string;               // 按犬只编号过滤
   page?: number;
   limit?: number;
+}
+
+/** 犬只关联搜索响应（按物品类型分组） */
+export interface DogSearchResult {
+  dogId: string;
+  groups: {
+    category: ItemCategory;
+    label: string;
+    items: Item[];
+  }[];
+}
+
+/** 管控物品领用申请 */
+export interface ApprovalApplyRequest {
+  itemId: string;
+  itemName: string;
+  quantity: number;
+  purpose: string;
+  returnDate: string;
+}
+
+/** 审批状态 */
+export type ApprovalStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELED';
+
+/** 审批实例响应 */
+export interface ApprovalInstance {
+  instanceCode: string;
+  status: ApprovalStatus;
+  message?: string;
 }
