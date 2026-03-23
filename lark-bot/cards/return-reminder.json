@@ -1,0 +1,57 @@
+{
+  "config": {
+    "wide_screen_mode": true
+  },
+  "header": {
+    "title": {
+      "tag": "plain_text",
+      "content": "🔔 借出催还提醒"
+    },
+    "template": "yellow"
+  },
+  "elements": [
+    {
+      "tag": "div",
+      "text": {
+        "tag": "lark_md",
+        "content": "**{{borrower_name}}** 你好，以下物品已借出超过预计时间，请尽快归还："
+      }
+    },
+    {
+      "tag": "hr"
+    },
+    {
+      "tag": "div",
+      "text": {
+        "tag": "lark_md",
+        "content": "{{overdue_list}}"
+      }
+    },
+    {
+      "tag": "action",
+      "actions": [
+        {
+          "tag": "button",
+          "text": {
+            "tag": "plain_text",
+            "content": "已归还"
+          },
+          "type": "primary",
+          "value": {
+            "action": "confirm_return",
+            "item_ids": "{{item_ids}}"
+          }
+        },
+        {
+          "tag": "button",
+          "text": {
+            "tag": "plain_text",
+            "content": "申请延期"
+          },
+          "type": "default",
+          "url": "{{h5_base_url}}/item/{{first_item_id}}"
+        }
+      ]
+    }
+  ]
+}
