@@ -1,5 +1,5 @@
 {
-  "viewport": { "width": 580, "height": 820 },
+  "viewport": { "width": 400, "height": 530 },
   "zones": [
     { "id": "production", "name": "生产区",   "color": "#9ecbf0" },
     { "id": "lab",        "name": "实验室区", "color": "#7ecba8" },
@@ -12,7 +12,7 @@
       "id": "training",
       "name": "培训室",
       "zone": "office",
-      "x": 105, "y": 25, "width": 210, "height": 130,
+      "x": 50, "y": 0, "width": 100, "height": 70,
       "dataStatus": "fresh",
       "items": [
         { "id": "i067", "name": "培训教材套装",   "location": "培训室-教材架", "status": "在库" },
@@ -21,10 +21,52 @@
       ]
     },
     {
+      "id": "engineering",
+      "name": "工程部",
+      "zone": "office",
+      "x": 0, "y": 35, "width": 50, "height": 35,
+      "dataStatus": "stale",
+      "items": [
+        { "id": "i077", "name": "万用表",           "location": "工程部-工具柜A-第1层", "status": "在库" },
+        { "id": "i078", "name": "电钻套装",         "location": "工程部-工具柜A-第2层", "status": "借出" },
+        { "id": "i079", "name": "维修工具箱（A）",  "location": "工程部-工具柜B-第1层", "status": "在库" },
+        { "id": "i080", "name": "维修工具箱（B）",  "location": "工程部-工具柜B-第2层", "status": "在库" },
+        { "id": "i081", "name": "备用保险丝",       "location": "工程部-零件柜-抽屉3",  "status": "在库" },
+        { "id": "i082", "name": "液压扳手",         "location": "工程部-重型工具区",    "status": "在库" },
+        { "id": "i083", "name": "电气图纸夹",       "location": "工程部-图纸架",        "status": "在库" }
+      ]
+    },
+    {
+      "id": "printroom",
+      "name": "文印室",
+      "zone": "office",
+      "x": 150, "y": 0, "width": 50, "height": 70,
+      "dataStatus": "fresh",
+      "items": [
+        { "id": "i063", "name": "复印机",               "location": "文印室-中央",   "status": "在库" },
+        { "id": "i064", "name": "A4纸（500张/包）×10", "location": "文印室-纸架",   "status": "在库" },
+        { "id": "i065", "name": "墨盒套装",             "location": "文印室-耗材柜", "status": "在库" },
+        { "id": "i066", "name": "装订机",               "location": "文印室-操作台", "status": "在库" }
+      ]
+    },
+    {
+      "id": "pantry",
+      "name": "茶水间",
+      "zone": "office",
+      "x": 0, "y": 110, "width": 40, "height": 35,
+      "dataStatus": "fresh",
+      "items": [
+        { "id": "i070", "name": "饮水机",         "location": "茶水间-东墙",    "status": "在库" },
+        { "id": "i071", "name": "茶叶罐（绿茶）", "location": "茶水间-置物架",  "status": "在库" },
+        { "id": "i072", "name": "咖啡胶囊盒",     "location": "茶水间-置物架",  "status": "在库" },
+        { "id": "i073", "name": "一次性纸杯",     "location": "茶水间-壁柜",    "status": "在库" }
+      ]
+    },
+    {
       "id": "office1",
       "name": "办公室1",
       "zone": "office",
-      "x": 25, "y": 170, "width": 100, "height": 82,
+      "x": 90, "y": 110, "width": 50, "height": 35,
       "dataStatus": "fresh",
       "items": [
         { "id": "i054", "name": "合同档案夹",   "location": "办公室1-文件柜",  "status": "在库" },
@@ -33,34 +75,22 @@
       ]
     },
     {
-      "id": "office2",
-      "name": "办公室2",
+      "id": "reception",
+      "name": "前台",
       "zone": "office",
-      "x": 135, "y": 170, "width": 100, "height": 82,
+      "x": 90, "y": 145, "width": 50, "height": 40,
       "dataStatus": "fresh",
       "items": [
-        { "id": "i057", "name": "财务报表夹",   "location": "办公室2-文件柜",  "status": "在库" },
-        { "id": "i058", "name": "票据盒",       "location": "办公室2-保险柜",  "status": "在库" },
-        { "id": "i059", "name": "打印机耗材",   "location": "办公室2-杂物架",  "status": "在库" }
-      ]
-    },
-    {
-      "id": "office3",
-      "name": "办公室3",
-      "zone": "office",
-      "x": 245, "y": 170, "width": 100, "height": 82,
-      "dataStatus": "stale",
-      "items": [
-        { "id": "i060", "name": "质检报告夹",     "location": "办公室3-文件柜", "status": "在库" },
-        { "id": "i061", "name": "品控标准手册",   "location": "办公室3-书架",   "status": "在库" },
-        { "id": "i062", "name": "样品留存盒",     "location": "办公室3-样品架", "status": "在库" }
+        { "id": "i074", "name": "访客登记本",   "location": "前台-桌面", "status": "在库" },
+        { "id": "i075", "name": "临时通行证",   "location": "前台-抽屉", "status": "在库" },
+        { "id": "i076", "name": "前台电话机",   "location": "前台-桌面", "status": "在库" }
       ]
     },
     {
       "id": "lab",
       "name": "实验室",
       "zone": "lab",
-      "x": 25, "y": 262, "width": 165, "height": 92,
+      "x": 0, "y": 185, "width": 90, "height": 55,
       "dataStatus": "fresh",
       "items": [
         { "id": "i025", "name": "血常规分析仪",          "location": "实验室-检测台A",  "status": "在库"  },
@@ -72,10 +102,22 @@
       ]
     },
     {
+      "id": "office2",
+      "name": "办公室2",
+      "zone": "office",
+      "x": 90, "y": 185, "width": 50, "height": 55,
+      "dataStatus": "fresh",
+      "items": [
+        { "id": "i057", "name": "财务报表夹",   "location": "办公室2-文件柜",  "status": "在库" },
+        { "id": "i058", "name": "票据盒",       "location": "办公室2-保险柜",  "status": "在库" },
+        { "id": "i059", "name": "打印机耗材",   "location": "办公室2-杂物架",  "status": "在库" }
+      ]
+    },
+    {
       "id": "microlab",
       "name": "微生物实验室",
       "zone": "lab",
-      "x": 200, "y": 262, "width": 115, "height": 92,
+      "x": 0, "y": 240, "width": 40, "height": 28,
       "dataStatus": "fresh",
       "items": [
         { "id": "i031", "name": "超净工作台",   "location": "微生物实验室-主台",   "status": "在库" },
@@ -90,68 +132,27 @@
       "subLabel": "🔒 授权进入",
       "zone": "lab",
       "restricted": true,
-      "x": 325, "y": 262, "width": 111, "height": 92,
+      "x": 40, "y": 240, "width": 50, "height": 28,
       "dataStatus": "fresh",
       "items": []
     },
     {
-      "id": "pantry",
-      "name": "茶水间",
+      "id": "office3",
+      "name": "办公室3",
       "zone": "office",
-      "x": 25, "y": 364, "width": 100, "height": 82,
-      "dataStatus": "fresh",
-      "items": [
-        { "id": "i070", "name": "饮水机",         "location": "茶水间-东墙",    "status": "在库" },
-        { "id": "i071", "name": "茶叶罐（绿茶）", "location": "茶水间-置物架",  "status": "在库" },
-        { "id": "i072", "name": "咖啡胶囊盒",     "location": "茶水间-置物架",  "status": "在库" },
-        { "id": "i073", "name": "一次性纸杯",     "location": "茶水间-壁柜",    "status": "在库" }
-      ]
-    },
-    {
-      "id": "printroom",
-      "name": "文印室",
-      "zone": "office",
-      "x": 135, "y": 364, "width": 100, "height": 82,
-      "dataStatus": "fresh",
-      "items": [
-        { "id": "i063", "name": "复印机",               "location": "文印室-中央",   "status": "在库" },
-        { "id": "i064", "name": "A4纸（500张/包）×10", "location": "文印室-纸架",   "status": "在库" },
-        { "id": "i065", "name": "墨盒套装",             "location": "文印室-耗材柜", "status": "在库" },
-        { "id": "i066", "name": "装订机",               "location": "文印室-操作台", "status": "在库" }
-      ]
-    },
-    {
-      "id": "reception",
-      "name": "前台",
-      "zone": "office",
-      "x": 245, "y": 364, "width": 100, "height": 82,
-      "dataStatus": "fresh",
-      "items": [
-        { "id": "i074", "name": "访客登记本",   "location": "前台-桌面", "status": "在库" },
-        { "id": "i075", "name": "临时通行证",   "location": "前台-抽屉", "status": "在库" },
-        { "id": "i076", "name": "前台电话机",   "location": "前台-桌面", "status": "在库" }
-      ]
-    },
-    {
-      "id": "warehouse",
-      "name": "库房",
-      "zone": "storage",
-      "x": 448, "y": 25, "width": 112, "height": 200,
+      "x": 90, "y": 240, "width": 50, "height": 28,
       "dataStatus": "stale",
       "items": [
-        { "id": "i043", "name": "大豆蛋白粉（5kg×20袋）",  "location": "库房-货架A1",   "status": "在库" },
-        { "id": "i044", "name": "玉米淀粉箱",              "location": "库房-货架A2",   "status": "在库" },
-        { "id": "i045", "name": "食品添加剂套装",           "location": "库房-危化品柜", "status": "在库" },
-        { "id": "i046", "name": "清洁耗材箱",              "location": "库房-货架B",    "status": "在库" },
-        { "id": "i047", "name": "备用设备零件包",           "location": "库房-零件柜",   "status": "在库" },
-        { "id": "i048", "name": "纸箱（大号）",            "location": "库房-地面区",   "status": "在库" }
+        { "id": "i060", "name": "质检报告夹",     "location": "办公室3-文件柜", "status": "在库" },
+        { "id": "i061", "name": "品控标准手册",   "location": "办公室3-书架",   "status": "在库" },
+        { "id": "i062", "name": "样品留存盒",     "location": "办公室3-样品架", "status": "在库" }
       ]
     },
     {
       "id": "cold",
       "name": "冷库",
       "zone": "storage",
-      "x": 448, "y": 235, "width": 112, "height": 95,
+      "x": 0, "y": 290, "width": 50, "height": 50,
       "dataStatus": "stale",
       "items": [
         { "id": "i035", "name": "冷冻原料-牛肉（批次240301）", "location": "冷库-冷冻区A", "status": "在库" },
@@ -164,7 +165,7 @@
       "id": "smallstore",
       "name": "小库房",
       "zone": "storage",
-      "x": 448, "y": 340, "width": 112, "height": 118,
+      "x": 0, "y": 340, "width": 50, "height": 30,
       "dataStatus": "expired",
       "items": [
         { "id": "i039", "name": "备用包装袋（小）", "location": "小库房-货架A",   "status": "在库" },
@@ -174,49 +175,52 @@
       ]
     },
     {
-      "id": "prep",
-      "name": "备料间",
-      "zone": "production",
-      "x": 25, "y": 485, "width": 115, "height": 92,
-      "dataStatus": "fresh",
-      "items": [
-        { "id": "i001", "name": "肉类原料（冷藏）",  "location": "备料间-冷藏架A", "status": "在库" },
-        { "id": "i002", "name": "蔬菜食材",         "location": "备料间-蔬菜架B", "status": "在库" },
-        { "id": "i003", "name": "调味料箱（大）",    "location": "备料间-调料架C", "status": "在库" },
-        { "id": "i004", "name": "大豆蛋白粉",        "location": "备料间-原料架D", "status": "在库" }
-      ]
-    },
-    {
-      "id": "wash",
-      "name": "清洗间",
-      "zone": "production",
-      "x": 150, "y": 485, "width": 108, "height": 92,
-      "dataStatus": "fresh",
-      "items": [
-        { "id": "i005", "name": "高压清洗机",    "location": "清洗间-西墙",   "status": "在库" },
-        { "id": "i006", "name": "清洁剂（工业）","location": "清洗间-储柜",   "status": "在库" },
-        { "id": "i007", "name": "消毒液桶",      "location": "清洗间-角落",   "status": "在库" },
-        { "id": "i008", "name": "刷洗工具套装",  "location": "清洗间-挂墙架", "status": "在库" }
-      ]
-    },
-    {
-      "id": "emulsify",
-      "name": "乳化间",
-      "zone": "production",
-      "x": 268, "y": 485, "width": 108, "height": 92,
+      "id": "warehouse",
+      "name": "库房",
+      "zone": "storage",
+      "x": 330, "y": 110, "width": 70, "height": 180,
       "dataStatus": "stale",
       "items": [
-        { "id": "i009", "name": "乳化机（A型）", "location": "乳化间-中央",   "status": "使用中" },
-        { "id": "i010", "name": "乳化剂",        "location": "乳化间-药品柜", "status": "在库"   },
-        { "id": "i011", "name": "搅拌桶（50L）", "location": "乳化间-东侧",   "status": "在库"   },
-        { "id": "i012", "name": "温控仪表",      "location": "乳化间-控制台", "status": "在库"   }
+        { "id": "i043", "name": "大豆蛋白粉（5kg×20袋）",  "location": "库房-货架A1",   "status": "在库" },
+        { "id": "i044", "name": "玉米淀粉箱",              "location": "库房-货架A2",   "status": "在库" },
+        { "id": "i045", "name": "食品添加剂套装",           "location": "库房-危化品柜", "status": "在库" },
+        { "id": "i046", "name": "清洁耗材箱",              "location": "库房-货架B",    "status": "在库" },
+        { "id": "i047", "name": "备用设备零件包",           "location": "库房-零件柜",   "status": "在库" },
+        { "id": "i048", "name": "纸箱（大号）",            "location": "库房-地面区",   "status": "在库" }
+      ]
+    },
+    {
+      "id": "kennel",
+      "name": "犬舍",
+      "zone": "kennel",
+      "x": 330, "y": 290, "width": 70, "height": 80,
+      "dataStatus": "fresh",
+      "items": [
+        { "id": "i049", "name": "犬粮（在用）-K系列",   "location": "犬舍-饲喂台", "status": "使用中" },
+        { "id": "i050", "name": "犬只健康档案夹",       "location": "犬舍-档案架", "status": "在库"   },
+        { "id": "i051", "name": "专属标签牌",           "location": "犬舍-标签柜", "status": "在库"   },
+        { "id": "i052", "name": "防疫药品柜",           "location": "犬舍-药品柜", "status": "在库"   },
+        { "id": "i053", "name": "饲喂记录本",           "location": "犬舍-工作台", "status": "在库"   }
+      ]
+    },
+    {
+      "id": "finished",
+      "name": "成品间",
+      "zone": "production",
+      "x": 80, "y": 400, "width": 100, "height": 30,
+      "dataStatus": "fresh",
+      "items": [
+        { "id": "i021", "name": "犬粮成品（军警版）批次2403", "location": "成品间-货架A1", "status": "在库" },
+        { "id": "i022", "name": "犬粮成品（民用版）批次2403", "location": "成品间-货架A2", "status": "在库" },
+        { "id": "i023", "name": "包装成品箱",                  "location": "成品间-堆放区", "status": "在库" },
+        { "id": "i024", "name": "成品标签卷",                  "location": "成品间-标签架", "status": "在库" }
       ]
     },
     {
       "id": "cook",
       "name": "蒸煮间",
       "zone": "production",
-      "x": 25, "y": 587, "width": 115, "height": 88,
+      "x": 80, "y": 430, "width": 100, "height": 40,
       "dataStatus": "fresh",
       "items": [
         { "id": "i013", "name": "全自动杀菌锅",  "location": "蒸煮间-中央",   "status": "使用中" },
@@ -229,7 +233,7 @@
       "id": "fill",
       "name": "灌装间",
       "zone": "production",
-      "x": 150, "y": 587, "width": 108, "height": 88,
+      "x": 180, "y": 430, "width": 100, "height": 40,
       "dataStatus": "fresh",
       "items": [
         { "id": "i017", "name": "灌装机（B型）", "location": "灌装间-主机位", "status": "使用中" },
@@ -239,46 +243,42 @@
       ]
     },
     {
-      "id": "finished",
-      "name": "成品间",
+      "id": "emulsify",
+      "name": "乳化间",
       "zone": "production",
-      "x": 268, "y": 587, "width": 108, "height": 88,
-      "dataStatus": "fresh",
-      "items": [
-        { "id": "i021", "name": "犬粮成品（军警版）批次2403", "location": "成品间-货架A1", "status": "在库" },
-        { "id": "i022", "name": "犬粮成品（民用版）批次2403", "location": "成品间-货架A2", "status": "在库" },
-        { "id": "i023", "name": "包装成品箱",                  "location": "成品间-堆放区", "status": "在库" },
-        { "id": "i024", "name": "成品标签卷",                  "location": "成品间-标签架", "status": "在库" }
-      ]
-    },
-    {
-      "id": "kennel",
-      "name": "犬舍",
-      "zone": "kennel",
-      "x": 386, "y": 485, "width": 174, "height": 190,
-      "dataStatus": "fresh",
-      "items": [
-        { "id": "i049", "name": "犬粮（在用）-K系列",   "location": "犬舍-饲喂台", "status": "使用中" },
-        { "id": "i050", "name": "犬只健康档案夹",       "location": "犬舍-档案架", "status": "在库"   },
-        { "id": "i051", "name": "专属标签牌",           "location": "犬舍-标签柜", "status": "在库"   },
-        { "id": "i052", "name": "防疫药品柜",           "location": "犬舍-药品柜", "status": "在库"   },
-        { "id": "i053", "name": "饲喂记录本",           "location": "犬舍-工作台", "status": "在库"   }
-      ]
-    },
-    {
-      "id": "engineering",
-      "name": "工程部",
-      "zone": "office",
-      "x": 25, "y": 685, "width": 535, "height": 100,
+      "x": 180, "y": 470, "width": 100, "height": 60,
       "dataStatus": "stale",
       "items": [
-        { "id": "i077", "name": "万用表",           "location": "工程部-工具柜A-第1层", "status": "在库" },
-        { "id": "i078", "name": "电钻套装",         "location": "工程部-工具柜A-第2层", "status": "借出" },
-        { "id": "i079", "name": "维修工具箱（A）",  "location": "工程部-工具柜B-第1层", "status": "在库" },
-        { "id": "i080", "name": "维修工具箱（B）",  "location": "工程部-工具柜B-第2层", "status": "在库" },
-        { "id": "i081", "name": "备用保险丝",       "location": "工程部-零件柜-抽屉3",  "status": "在库" },
-        { "id": "i082", "name": "液压扳手",         "location": "工程部-重型工具区",    "status": "在库" },
-        { "id": "i083", "name": "电气图纸夹",       "location": "工程部-图纸架",        "status": "在库" }
+        { "id": "i009", "name": "乳化机（A型）", "location": "乳化间-中央",   "status": "使用中" },
+        { "id": "i010", "name": "乳化剂",        "location": "乳化间-药品柜", "status": "在库"   },
+        { "id": "i011", "name": "搅拌桶（50L）", "location": "乳化间-东侧",   "status": "在库"   },
+        { "id": "i012", "name": "温控仪表",      "location": "乳化间-控制台", "status": "在库"   }
+      ]
+    },
+    {
+      "id": "prep",
+      "name": "备料间",
+      "zone": "production",
+      "x": 15, "y": 484, "width": 65, "height": 46,
+      "dataStatus": "fresh",
+      "items": [
+        { "id": "i001", "name": "肉类原料（冷藏）",  "location": "备料间-冷藏架A", "status": "在库" },
+        { "id": "i002", "name": "蔬菜食材",         "location": "备料间-蔬菜架B", "status": "在库" },
+        { "id": "i003", "name": "调味料箱（大）",    "location": "备料间-调料架C", "status": "在库" },
+        { "id": "i004", "name": "大豆蛋白粉",        "location": "备料间-原料架D", "status": "在库" }
+      ]
+    },
+    {
+      "id": "wash",
+      "name": "清洗间",
+      "zone": "production",
+      "x": 80, "y": 484, "width": 100, "height": 46,
+      "dataStatus": "fresh",
+      "items": [
+        { "id": "i005", "name": "高压清洗机",    "location": "清洗间-西墙",   "status": "在库" },
+        { "id": "i006", "name": "清洁剂（工业）","location": "清洗间-储柜",   "status": "在库" },
+        { "id": "i007", "name": "消毒液桶",      "location": "清洗间-角落",   "status": "在库" },
+        { "id": "i008", "name": "刷洗工具套装",  "location": "清洗间-挂墙架", "status": "在库" }
       ]
     }
   ]

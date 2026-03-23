@@ -55,35 +55,26 @@
         <!-- 地面（室外） -->
         <rect x="0" y="0" :width="VP_W" :height="VP_H" fill="#c8c4bb" />
 
-        <!-- ① 左侧主楼（培训室 / 办公 / 实验室） -->
-        <rect x="18" y="18" width="418" height="450" fill="#ece8dc" stroke="#555" stroke-width="3" rx="2"/>
+        <!-- 楼栋1: 培训室/工程部/文印室 (顶部) -->
+        <rect x="0" y="0" width="200" height="70" fill="#ece8dc" stroke="#555" stroke-width="1.5" rx="2"/>
+        <!-- 楼栋2: 实验/办公区 (中部左侧) -->
+        <rect x="0" y="110" width="140" height="158" fill="#ece8dc" stroke="#555" stroke-width="1.5" rx="2"/>
+        <!-- 楼栋3: 冷库/小库房 (左下) -->
+        <rect x="0" y="290" width="50" height="80" fill="#ece8dc" stroke="#555" stroke-width="1.5" rx="2"/>
+        <!-- 楼栋4: 库房/犬舍 (右侧) -->
+        <rect x="330" y="110" width="70" height="260" fill="#ece8dc" stroke="#555" stroke-width="1.5" rx="2"/>
+        <!-- 楼栋5: 生产区 (底部) -->
+        <rect x="0" y="400" width="280" height="130" fill="#ece8dc" stroke="#555" stroke-width="1.5" rx="2"/>
 
-        <!-- ② 右侧仓储楼（库房 / 冷库 / 小库房） -->
-        <rect x="443" y="18" width="119" height="450" fill="#ece8dc" stroke="#555" stroke-width="3" rx="2"/>
-
-        <!-- ③ 底部生产楼（生产 / 犬舍 / 工程部） -->
-        <rect x="18" y="474" width="544" height="328" fill="#ece8dc" stroke="#555" stroke-width="3" rx="2"/>
-
-        <!-- 分隔虚线：主楼内部行间 -->
-        <line x1="18"  y1="160" x2="436" y2="160" stroke="#bbb" stroke-width="1" stroke-dasharray="5,4"/>
-        <line x1="18"  y1="253" x2="436" y2="253" stroke="#bbb" stroke-width="1" stroke-dasharray="5,4"/>
-        <line x1="18"  y1="355" x2="436" y2="355" stroke="#bbb" stroke-width="1" stroke-dasharray="5,4"/>
-        <!-- 分隔线：主楼与仓储楼内部行间 -->
-        <line x1="443" y1="228" x2="562" y2="228" stroke="#bbb" stroke-width="1" stroke-dasharray="5,4"/>
-        <line x1="443" y1="333" x2="562" y2="333" stroke="#bbb" stroke-width="1" stroke-dasharray="5,4"/>
-        <!-- 分隔线：生产楼内部行间 -->
-        <line x1="18"  y1="578" x2="380" y2="578" stroke="#bbb" stroke-width="1" stroke-dasharray="5,4"/>
-        <line x1="18"  y1="675" x2="562" y2="675" stroke="#bbb" stroke-width="1" stroke-dasharray="5,4"/>
-
-        <!-- 区域标签 -->
-        <text x="375" y="34"  text-anchor="middle" font-size="8" fill="#999" font-weight="bold">办 公 区</text>
-        <text x="370" y="274" text-anchor="middle" font-size="8" fill="#666" font-weight="bold">实 验 室 区</text>
-        <text x="502" y="34"  text-anchor="middle" font-size="8" fill="#888" font-weight="bold">仓 储 区</text>
-        <text x="200" y="492" text-anchor="middle" font-size="8" fill="#888" font-weight="bold">生 产 区</text>
-        <text x="473" y="492" text-anchor="middle" font-size="8" fill="#888" font-weight="bold">犬 舍 区</text>
+        <!-- 区域标签（空地区域）-->
+        <text x="255" y="36"  text-anchor="middle" font-size="7" fill="#999" font-weight="bold">办 公 区</text>
+        <text x="70"  y="280" text-anchor="middle" font-size="7" fill="#666" font-weight="bold">实 验 室 区</text>
+        <text x="365" y="160" text-anchor="middle" font-size="7" fill="#888" font-weight="bold">仓 储 区</text>
+        <text x="140" y="412" text-anchor="middle" font-size="7" fill="#888" font-weight="bold">生 产 区</text>
+        <text x="365" y="340" text-anchor="middle" font-size="7" fill="#888" font-weight="bold">犬 舍 区</text>
 
         <!-- 总面积标注 -->
-        <text x="375" y="152" text-anchor="middle" font-size="8" fill="#aaa">厂区总面积：1012.39 m²</text>
+        <text x="255" y="220" text-anchor="middle" font-size="6" fill="#aaa">厂区总面积：1012.39 m²</text>
 
         <!-- 房间 -->
         <g
@@ -195,8 +186,8 @@
           </pattern>
         </defs>
 
-        <!-- 指北针（左侧主楼顶部留白区） -->
-        <g transform="translate(60, 85)">
+        <!-- 指北针（中部空地区域） -->
+        <g transform="translate(245, 60)">
           <circle cx="0" cy="0" r="15" fill="white" stroke="#aaa" stroke-width="1" opacity="0.9"/>
           <polygon points="0,-12 4,5 0,1 -4,5" fill="#e53935" />
           <polygon points="0,12 4,-5 0,-1 -4,-5" fill="#999" />
@@ -572,9 +563,10 @@ function roomFill(room: Room): string {
 
 function labelFontSize(room: Room): number {
   const chars = room.name.length
-  if (room.width < 90)  return chars > 4 ? 8  : 10
-  if (room.width < 120) return chars > 4 ? 9  : 11
-  return chars > 6 ? 9 : 12
+  // Estimate max font size so text fits within room width (approx 0.55em per char)
+  const maxByWidth = Math.floor((room.width - 4) / (chars * 0.58))
+  const maxByHeight = Math.floor((room.height - 8) / 1.4)
+  return Math.min(Math.max(maxByWidth, 5), maxByHeight, 13)
 }
 
 function statusColor(s: string): string {
