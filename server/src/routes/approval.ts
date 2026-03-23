@@ -7,7 +7,8 @@
 
 import { Router } from 'express';
 import { createApprovalInstance, getApprovalInstance } from '../services/lark-approval.js';
-import { authMiddleware, type AuthRequest } from '../middleware/auth.js';
+import { authenticate } from '../middleware/auth.js';
+import type { Request } from 'express';
 
 const router = Router();
 
@@ -15,7 +16,7 @@ const router = Router();
  * POST /api/approval/apply
  * H5 页面发起领用申请 → 创建飞书审批实例
  */
-router.post('/apply', authMiddleware, async (req: AuthRequest, res) => {
+router.post('/apply', authenticate, async (req: Request, res) => {
   try {
     const { itemId, itemName, quantity, purpose, returnDate } = req.body;
 
@@ -26,7 +27,7 @@ router.post('/apply', authMiddleware, async (req: AuthRequest, res) => {
     }
 
     const result = await createApprovalInstance({
-      userId: req.userId!,
+      userId: req.user?.id!,
       itemName,
       quantity,
       purpose,
@@ -34,7 +35,7 @@ router.post('/apply', authMiddleware, async (req: AuthRequest, res) => {
     });
 
     // TODO: 将审批实例与物品关联存入数据库
-    console.log(`[Approval] 用户 ${req.userId} 发起领用申请: ${itemName} x${quantity}, 审批单号: ${result.instance_code}`);
+    console.log(`[Approval] 用户 ${req.user?.id} 发起领用申请: ${itemName} x${quantity}, 审批单号: ${result.instance_code}`);
 
     res.json({
       instanceCode: result.instance_code,
@@ -88,7 +89,7 @@ router.post('/callback', async (req, res) => {
  * GET /api/approval/:code
  * 查询审批实例状态
  */
-router.get('/:code', authMiddleware, async (req, res) => {
+router.get('/:code', authenticate, async (req, res) => {
   try {
     const result = await getApprovalInstance(req.params.code);
     res.json(result);

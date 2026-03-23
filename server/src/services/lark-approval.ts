@@ -25,7 +25,7 @@ async function getTenantToken(): Promise<string> {
     body: JSON.stringify({ app_id: APP_ID, app_secret: APP_SECRET }),
   });
 
-  const data = await res.json();
+  const data = await res.json() as any;
   if (data.code !== 0) {
     throw new Error(`获取 token 失败: ${data.msg}`);
   }
@@ -74,7 +74,7 @@ export async function createApprovalInstance(params: ApprovalRequest) {
     }),
   });
 
-  const data = await res.json();
+  const data = await res.json() as any;
   if (data.code !== 0) {
     throw new Error(`创建审批失败: ${data.msg}`);
   }
@@ -92,7 +92,7 @@ export async function getApprovalInstance(instanceCode: string) {
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  const data = await res.json();
+  const data = await res.json() as any;
   if (data.code !== 0) {
     throw new Error(`查询审批失败: ${data.msg}`);
   }

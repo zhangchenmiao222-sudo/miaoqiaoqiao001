@@ -23,7 +23,7 @@ async function getTenantToken(): Promise<string> {
     body: JSON.stringify({ app_id: APP_ID, app_secret: APP_SECRET }),
   });
 
-  const data = await res.json();
+  const data = await res.json() as any;
   if (data.code !== 0) {
     throw new Error(`获取 token 失败: ${data.msg}`);
   }
@@ -52,7 +52,7 @@ export async function sendCardMessage(chatId: string, card: object) {
     }),
   });
 
-  const data = await res.json();
+  const data = await res.json() as any;
   if (data.code !== 0) {
     console.error('发送卡片消息失败:', data.msg);
   }
@@ -78,7 +78,7 @@ export async function sendPrivateCard(openId: string, card: object) {
     }),
   });
 
-  const data = await res.json();
+  const data = await res.json() as any;
   if (data.code !== 0) {
     console.error('发送私信失败:', data.msg);
   }
@@ -95,7 +95,7 @@ export async function sendWebhookMessage(webhookUrl: string, card: object) {
     body: JSON.stringify({ msg_type: 'interactive', card }),
   });
 
-  const data = await res.json();
+  const data = await res.json() as any;
   if (data.code !== 0) {
     console.error('Webhook 发送失败:', data.msg);
   }

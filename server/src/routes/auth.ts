@@ -8,7 +8,8 @@ import { Router } from 'express';
 import jwt from 'jsonwebtoken';
 import { getUserAccessToken, getUserInfo, getDepartmentName } from '../services/lark.js';
 import { matchRoleByDepartment, getPermissionLevel } from '../services/role-matcher.js';
-import { authMiddleware, type AuthRequest } from '../middleware/auth.js';
+import { authenticate } from '../middleware/auth.js';
+import type { Request } from 'express';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
@@ -74,10 +75,10 @@ router.post('/login', async (req, res) => {
  * GET /api/auth/me
  * 获取当前登录用户信息（需 JWT）
  */
-router.get('/me', authMiddleware, (req: AuthRequest, res) => {
+router.get('/me', authenticate, (req: Request, res) => {
   res.json({
-    userId: req.userId,
-    role: req.userRole,
+    userId: req.user?.id,
+    role: req.user?.role,
   });
 });
 

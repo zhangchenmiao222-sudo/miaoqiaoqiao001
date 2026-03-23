@@ -5,8 +5,8 @@
  */
 
 import { Router } from 'express';
-import { handleLarkEvent } from '../../lark-bot/handlers/message-handler.js';
-import { handleCardCallback } from '../../lark-bot/handlers/card-callback-handler.js';
+import { handleLarkEvent } from '../../../lark-bot/handlers/message-handler.js';
+import { handleCardCallback } from '../../../lark-bot/handlers/card-callback-handler.js';
 
 const router = Router();
 

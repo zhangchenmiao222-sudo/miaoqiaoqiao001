@@ -6,7 +6,7 @@
 
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
-import { sendWebhookMessage } from '../../lark-bot/webhooks/bot-sender.js';
+import { sendWebhookMessage } from '../../../lark-bot/webhooks/bot-sender.js';
 
 const WEBHOOK_URL = process.env.LARK_BOT_WEBHOOK || '';
 const H5_BASE = process.env.H5_BASE_URL || 'http://localhost:5173';

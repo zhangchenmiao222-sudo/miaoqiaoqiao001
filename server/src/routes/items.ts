@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { v4 as uuidv4 } from 'uuid';
 import multer from 'multer';
 import pool from '../db/connection.js';
 import { authenticate, optionalAuth } from '../middleware/auth.js';

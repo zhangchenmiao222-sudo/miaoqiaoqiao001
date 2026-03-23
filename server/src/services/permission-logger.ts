@@ -3,7 +3,7 @@
  * 记录所有权限相关操作（授权/取消/角色变更），通知管理层
  */
 
-import { sendPrivateCard } from '../../lark-bot/webhooks/bot-sender.js';
+import { sendPrivateCard } from '../../../lark-bot/webhooks/bot-sender.js';
 
 const H5_BASE = process.env.H5_BASE_URL || 'http://localhost:5173';
 

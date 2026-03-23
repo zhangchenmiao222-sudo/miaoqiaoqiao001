@@ -260,7 +260,7 @@ export const ExcelImportService = {
     locPaths.forEach((path, id) => locByPath.set(path.toLowerCase().trim(), id));
 
     const wb = new ExcelJS.Workbook();
-    await wb.xlsx.load(buffer);
+    await wb.xlsx.load(buffer as any);
 
     const ws = wb.getWorksheet('物品数据') ?? wb.worksheets[0];
     if (!ws) {

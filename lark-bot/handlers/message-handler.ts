@@ -69,7 +69,7 @@ export async function handleLarkEvent(body: LarkEvent) {
   // 搜索物品
   try {
     const res = await fetch(`${API_BASE}/items?keyword=${encodeURIComponent(text)}&limit=5`);
-    const data = await res.json();
+    const data = await res.json() as any;
     const items = data.data || [];
 
     if (items.length === 0) {

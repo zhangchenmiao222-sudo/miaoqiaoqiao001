@@ -22,7 +22,7 @@ interface CardAction {
  */
 export async function handleCardCallback(body: CardAction) {
   const { action: actionData, open_id } = body;
-  const { action, item_ids } = actionData.action.value;
+  const { action, item_ids } = actionData.value;
 
   switch (action) {
     case 'confirm_location':
