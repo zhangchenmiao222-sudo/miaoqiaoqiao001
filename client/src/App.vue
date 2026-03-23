@@ -1,7 +1,8 @@
 <template>
+  <OfflineBanner />
   <router-view />
 </template>
 
 <script setup lang="ts">
-// App root component
+import OfflineBanner from '@/components/OfflineBanner.vue'
 </script>
