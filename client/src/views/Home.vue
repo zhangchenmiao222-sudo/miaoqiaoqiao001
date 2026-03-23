@@ -11,11 +11,12 @@
     </div>
 
     <!-- 功能快捷入口 -->
-    <van-grid :column-num="4" :border="false" class="quick-nav">
+    <van-grid :column-num="5" :border="false" class="quick-nav">
       <van-grid-item icon="scan" text="扫码" to="/scan" />
       <van-grid-item icon="search" text="搜索" to="/search" />
       <van-grid-item icon="map-marked" text="地图" to="/map" />
       <van-grid-item icon="apps-o" text="浏览" to="/browse" />
+      <van-grid-item icon="flag-o" text="测验" to="/quiz" />
     </van-grid>
 
     <!-- 收藏物品 -->
