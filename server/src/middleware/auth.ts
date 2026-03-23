@@ -1,25 +1,51 @@
 import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import type { PermissionLevel, Role } from '../../../shared/types.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
-
-export interface AuthRequest extends Request {
-  userId?: string;
-  userRole?: string;
+export interface AuthUser {
+  id: string;
+  larkUserId: string;
+  name: string;
+  role: Role;
+  permissions: PermissionLevel;
 }
 
-export function authMiddleware(req: AuthRequest, res: Response, next: NextFunction) {
+declare global {
+  namespace Express {
+    interface Request {
+      user?: AuthUser;
+    }
+  }
+}
+
+const JWT_SECRET = process.env.JWT_SECRET || 'change-me-in-production';
+
+export function authenticate(req: Request, res: Response, next: NextFunction) {
   const header = req.headers.authorization;
   if (!header?.startsWith('Bearer ')) {
-    return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: '未登录' } });
+    res.status(401).json({ error: { code: 'UNAUTHORIZED', message: '缺少认证令牌' } });
+    return;
   }
 
+  const token = header.slice(7);
   try {
-    const payload = jwt.verify(header.slice(7), JWT_SECRET) as { userId: string; role: string };
-    req.userId = payload.userId;
-    req.userRole = payload.role;
+    const payload = jwt.verify(token, JWT_SECRET) as AuthUser;
+    req.user = payload;
     next();
   } catch {
-    return res.status(401).json({ error: { code: 'TOKEN_INVALID', message: 'Token 无效或已过期' } });
+    res.status(401).json({ error: { code: 'INVALID_TOKEN', message: '令牌无效或已过期' } });
   }
+}
+
+/** 可选认证：有 token 则解析，无 token 不拦截（用于搜索日志记录） */
+export function optionalAuth(req: Request, _res: Response, next: NextFunction) {
+  const header = req.headers.authorization;
+  if (header?.startsWith('Bearer ')) {
+    try {
+      req.user = jwt.verify(header.slice(7), JWT_SECRET) as AuthUser;
+    } catch {
+      // ignore invalid token
+    }
+  }
+  next();
 }

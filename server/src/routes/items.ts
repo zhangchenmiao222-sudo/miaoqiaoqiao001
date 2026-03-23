@@ -1,344 +1,308 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { pinyin } from 'pinyin-pro';
-import type { Item, ItemCategory, ItemStatus, DogSearchResult } from '../../../shared/types.js';
-
-// 图片存内存（mock），生产环境替换为 OSS/本地磁盘
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
+import pool from '../db/connection.js';
+import { authenticate, optionalAuth } from '../middleware/auth.js';
+import { requirePermission } from '../middleware/permission.js';
+import { ExcelImportService } from '../services/excelImport.js';
+import type { RowDataPacket, ResultSetHeader } from 'mysql2';
 
 const router = Router();
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
 // ============================================================
-// 内存模拟数据（含别名、拼音字段，后续替换为数据库查询）
+// GET /api/items/template — 下载 Excel 导入模板
 // ============================================================
-interface ItemWithAliases extends Item {
-  aliases: string[];
-  pinyinFull: string;   // 全拼，如 "xuechang fenxiyi"
-  pinyinInitials: string; // 首字母，如 "xcfxy"
-}
-
-const MOCK_ITEMS: ItemWithAliases[] = [
-  {
-    id: '1',
-    name: '血常规分析仪',
-    aliases: ['那个量血的机器', '验血仪', '血液分析仪', '血球仪'],
-    category: 'equipment',
-    status: 'in_stock',
-    zoneId: 'lab',
-    locationDetail: '实验室 - A柜 - 第2层',
-    quantity: 1,
-    unit: '台',
-    isControlled: false,
-    lastVerifiedAt: '2026-03-20T08:00:00Z',
-    lastVerifiedBy: 'user1',
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-03-20T08:00:00Z',
-    pinyinFull: '',
-    pinyinInitials: '',
-  },
-  {
-    id: '2',
-    name: '泡棉胶带',
-    aliases: ['双面胶', '泡沫胶带', '海绵胶带'],
-    category: 'consumable',
-    status: 'in_stock',
-    zoneId: 'warehouse',
-    locationDetail: '库房 - B区 - 货架3',
-    quantity: 50,
-    unit: '卷',
-    isControlled: false,
-    lastVerifiedAt: '2026-03-18T10:00:00Z',
-    lastVerifiedBy: 'user2',
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-03-18T10:00:00Z',
-    pinyinFull: '',
-    pinyinInitials: '',
-  },
-  {
-    id: '3',
-    name: '乙醇溶液',
-    aliases: ['酒精', '医用酒精', '75%酒精', 'jjy'],
-    category: 'reagent',
-    status: 'in_stock',
-    zoneId: 'lab',
-    locationDetail: '实验室 - 试剂柜 - 第1层',
-    quantity: 20,
-    unit: '瓶',
-    expiryDate: '2026-12-31',
-    isControlled: false,
-    lastVerifiedAt: '2026-03-15T09:00:00Z',
-    lastVerifiedBy: 'user1',
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-03-15T09:00:00Z',
-    pinyinFull: '',
-    pinyinInitials: '',
-  },
-  {
-    id: '4',
-    name: '犬粮K-027',
-    aliases: ['27号犬粮', 'K027犬粮'],
-    category: 'feed',
-    status: 'in_stock',
-    zoneId: 'kennel',
-    locationDetail: '成品间 - 冷库 - 编号K-027',
-    quantity: 10,
-    unit: '袋',
-    isControlled: false,
-    dogId: 'K-027',
-    lastVerifiedAt: '2026-03-21T07:00:00Z',
-    lastVerifiedBy: 'user3',
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-03-21T07:00:00Z',
-    pinyinFull: '',
-    pinyinInitials: '',
-  },
-  {
-    id: '7',
-    name: 'K-027健康档案',
-    aliases: ['27号健康档案', 'K027档案'],
-    category: 'consumable',
-    status: 'in_stock',
-    zoneId: 'lab',
-    locationDetail: '实验室 - 档案柜 - K区第3格',
-    quantity: 1,
-    unit: '份',
-    isControlled: false,
-    dogId: 'K-027',
-    lastVerifiedAt: '2026-03-18T09:00:00Z',
-    lastVerifiedBy: 'user3',
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-03-18T09:00:00Z',
-    pinyinFull: '',
-    pinyinInitials: '',
-  },
-  {
-    id: '8',
-    name: 'K-027专属标签',
-    aliases: ['27号标签', 'K027标签'],
-    category: 'consumable',
-    status: 'in_stock',
-    zoneId: 'kennel',
-    locationDetail: '犬舍 - 标签架 - 第3排',
-    quantity: 5,
-    unit: '张',
-    isControlled: false,
-    dogId: 'K-027',
-    lastVerifiedAt: '2026-03-19T10:00:00Z',
-    lastVerifiedBy: 'user3',
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-03-19T10:00:00Z',
-    pinyinFull: '',
-    pinyinInitials: '',
-  },
-  {
-    id: '9',
-    name: '犬粮K-031',
-    aliases: ['31号犬粮', 'K031犬粮'],
-    category: 'feed',
-    status: 'in_stock',
-    zoneId: 'kennel',
-    locationDetail: '成品间 - 冷库 - 编号K-031',
-    quantity: 8,
-    unit: '袋',
-    isControlled: false,
-    dogId: 'K-031',
-    lastVerifiedAt: '2026-03-21T07:30:00Z',
-    lastVerifiedBy: 'user3',
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-03-21T07:30:00Z',
-    pinyinFull: '',
-    pinyinInitials: '',
-  },
-  {
-    id: '10',
-    name: 'K-031健康档案',
-    aliases: ['31号健康档案', 'K031档案'],
-    category: 'consumable',
-    status: 'in_use',
-    zoneId: 'lab',
-    locationDetail: '实验室 - 档案柜 - K区第5格',
-    quantity: 1,
-    unit: '份',
-    isControlled: false,
-    dogId: 'K-031',
-    lastVerifiedAt: '2026-03-20T11:00:00Z',
-    lastVerifiedBy: 'user1',
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-03-20T11:00:00Z',
-    pinyinFull: '',
-    pinyinInitials: '',
-  },
-  {
-    id: '5',
-    name: '扭矩扳手',
-    aliases: ['力矩扳手', '扭力扳手', 'njbs'],
-    category: 'tool',
-    status: 'in_stock',
-    zoneId: 'engineering',
-    locationDetail: '工程部 - 工具柜 - 第3层',
-    quantity: 2,
-    unit: '把',
-    isControlled: false,
-    lastVerifiedAt: '2026-03-10T14:00:00Z',
-    lastVerifiedBy: 'user4',
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-03-10T14:00:00Z',
-    pinyinFull: '',
-    pinyinInitials: '',
-  },
-  {
-    id: '6',
-    name: '打印纸',
-    aliases: ['A4纸', '复印纸', 'A4'],
-    category: 'office',
-    status: 'in_stock',
-    zoneId: 'office',
-    locationDetail: '文印室 - 储物柜 - 第2层',
-    quantity: 100,
-    unit: '包',
-    isControlled: false,
-    lastVerifiedAt: '2026-03-19T11:00:00Z',
-    lastVerifiedBy: 'user5',
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-03-19T11:00:00Z',
-    pinyinFull: '',
-    pinyinInitials: '',
-  },
-];
-
-// 初始化拼音字段
-MOCK_ITEMS.forEach((item) => {
-  item.pinyinFull = pinyin(item.name, { toneType: 'none', separator: ' ' }).toLowerCase();
-  item.pinyinInitials = pinyin(item.name, { pattern: 'first', separator: '' }).toLowerCase();
-});
-
-// ============================================================
-// 模糊匹配：名称 | 别名 | 全拼 | 首字母
-// ============================================================
-function matchesKeyword(item: ItemWithAliases, kw: string): boolean {
-  const k = kw.toLowerCase().trim();
-  if (!k) return true;
-  if (item.name.toLowerCase().includes(k)) return true;
-  if (item.aliases.some((a) => a.toLowerCase().includes(k))) return true;
-  if (item.pinyinFull.includes(k)) return true;
-  if (item.pinyinInitials.includes(k)) return true;
-  return false;
-}
-
-// ============================================================
-// 路由
-// ============================================================
-
-// GET /api/items — 搜索/列表
-router.get('/', (req, res) => {
-  const keyword = (req.query.keyword as string) || '';
-  const category = req.query.category as ItemCategory | undefined;
-  const zoneId = req.query.zoneId as string | undefined;
-  const status = req.query.status as ItemStatus | undefined;
-  const page = Math.max(1, parseInt(req.query.page as string) || 1);
-  const limit = Math.min(100, parseInt(req.query.limit as string) || 20);
-
-  const dogId = req.query.dogId as string | undefined;
-
-  let results = MOCK_ITEMS.filter((item) => {
-    if (!matchesKeyword(item, keyword)) return false;
-    if (category && item.category !== category) return false;
-    if (zoneId && item.zoneId !== zoneId) return false;
-    if (status && item.status !== status) return false;
-    if (dogId && item.dogId !== dogId) return false;
-    return true;
-  });
-
-  const total = results.length;
-  const data = results.slice((page - 1) * limit, page * limit).map(({ aliases, pinyinFull, pinyinInitials, ...item }) => item);
-
-  res.json({ data, total, page, limit });
-});
-
-// GET /api/items/dog/:dogId — 按犬只编号查询，结果按物品类型分组
-const CATEGORY_LABELS: Record<ItemCategory, string> = {
-  feed: '定制犬粮', consumable: '健康档案/耗材', equipment: '设备',
-  tool: '工具', reagent: '试剂', controlled: '管控品',
-  office: '办公用品', spare_part: '备件',
-};
-
-router.get('/dog/:dogId', (req, res) => {
-  const dogId = req.params.dogId.toUpperCase();
-  const matched = MOCK_ITEMS.filter((i) => i.dogId?.toUpperCase() === dogId);
-
-  if (matched.length === 0) {
-    return res.status(404).json({ error: { code: 'NOT_FOUND', message: `未找到犬只 ${dogId} 的关联物品` } });
+router.get('/template', authenticate, async (_req, res) => {
+  try {
+    const buffer = await ExcelImportService.generateTemplate();
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename*=UTF-8\'\'%E7%89%A9%E5%93%81%E5%AF%BC%E5%85%A5%E6%A8%A1%E6%9D%BF.xlsx');
+    res.send(buffer);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: { code: 'TEMPLATE_ERROR', message: '模板生成失败' } });
   }
-
-  // 按 category 分组
-  const groupMap = new Map<ItemCategory, Item[]>();
-  matched.forEach(({ aliases, pinyinFull, pinyinInitials, ...item }) => {
-    if (!groupMap.has(item.category)) groupMap.set(item.category, []);
-    groupMap.get(item.category)!.push(item);
-  });
-
-  const result: DogSearchResult = {
-    dogId,
-    groups: Array.from(groupMap.entries()).map(([category, items]) => ({
-      category,
-      label: CATEGORY_LABELS[category] ?? category,
-      items,
-    })),
-  };
-  res.json(result);
 });
 
-// GET /api/items/:id — 详情
-router.get('/:id', (req, res) => {
-  const found = MOCK_ITEMS.find((i) => i.id === req.params.id);
-  if (!found) {
-    return res.status(404).json({ error: { code: 'NOT_FOUND', message: `物品 ${req.params.id} 不存在` } });
-  }
-  const { aliases, pinyinFull, pinyinInitials, ...item } = found;
-  res.json(item);
-});
+// ============================================================
+// GET /api/items/search?q=关键词&category=&location=&status=&page=&limit=
+// ============================================================
+router.get('/search', optionalAuth, async (req, res) => {
+  const { q = '', category, location, status, page = '1', limit = '20' } = req.query as Record<string, string>;
+  const offset = (Number(page) - 1) * Number(limit);
 
-// POST /api/items — 新建
-router.post('/', (req, res) => {
-  // TODO: persist to database
-  res.status(201).json(req.body);
-});
+  try {
+    let where = 'WHERE 1=1';
+    const params: unknown[] = [];
 
-// PUT /api/items/:id — 更新（含位置绑定）
-router.put('/:id', (req, res) => {
-  const idx = MOCK_ITEMS.findIndex((i) => i.id === req.params.id);
-  if (idx === -1) {
-    return res.status(404).json({ error: { code: 'NOT_FOUND', message: '物品不存在' } });
-  }
-  const allowed: (keyof Item)[] = ['zoneId', 'locationDetail', 'status', 'quantity'];
-  allowed.forEach((key) => {
-    if (req.body[key] !== undefined) {
-      (MOCK_ITEMS[idx] as Record<string, unknown>)[key] = req.body[key];
+    if (q) {
+      where += ` AND (
+        i.name LIKE ? OR
+        EXISTS (SELECT 1 FROM item_aliases ia WHERE ia.item_id = i.id AND ia.alias LIKE ?)
+      )`;
+      params.push(`%${q}%`, `%${q}%`);
     }
-  });
-  MOCK_ITEMS[idx].updatedAt = new Date().toISOString();
-  MOCK_ITEMS[idx].lastVerifiedAt = new Date().toISOString();
-  const { aliases, pinyinFull, pinyinInitials, ...item } = MOCK_ITEMS[idx];
-  res.json(item);
+    if (category)  { where += ' AND i.category_id = ?'; params.push(category); }
+    if (location)  { where += ' AND i.location_id = ?'; params.push(location); }
+    if (status)    { where += ' AND i.status = ?';      params.push(status); }
+
+    const countSql = `SELECT COUNT(*) AS total FROM items i ${where}`;
+    const [countRows] = await pool.query<RowDataPacket[]>(countSql, params);
+    const total = countRows[0].total as number;
+
+    const dataSql = `
+      SELECT i.*, c.name AS category_name, l.name AS location_name,
+             u.name AS responsible_user_name
+      FROM items i
+      LEFT JOIN categories c ON c.id = i.category_id
+      LEFT JOIN locations  l ON l.id = i.location_id
+      LEFT JOIN users      u ON u.id = i.responsible_user_id
+      ${where}
+      ORDER BY i.updated_at DESC
+      LIMIT ? OFFSET ?
+    `;
+    const [rows] = await pool.query<RowDataPacket[]>(dataSql, [...params, Number(limit), offset]);
+
+    // 记录搜索日志
+    if (q) {
+      await pool.query(
+        'INSERT INTO search_logs (id, user_id, keyword, result_count) VALUES (?, ?, ?, ?)',
+        [uuidv4(), req.user?.id ?? null, q, total]
+      );
+    }
+
+    res.json({ data: rows, total, page: Number(page), limit: Number(limit) });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: { code: 'DB_ERROR', message: '查询失败' } });
+  }
 });
 
-// POST /api/items/:id/photo — 拍照上传，关联物品位置记录
-router.post('/:id/photo', upload.single('photo'), (req, res) => {
-  const idx = MOCK_ITEMS.findIndex((i) => i.id === req.params.id);
-  if (idx === -1) {
-    return res.status(404).json({ error: { code: 'NOT_FOUND', message: '物品不存在' } });
+// ============================================================
+// GET /api/items — 列表（支持分页和过滤）
+// ============================================================
+router.get('/', authenticate, async (req, res) => {
+  const { category, location, status, page = '1', limit = '20' } = req.query as Record<string, string>;
+  const offset = (Number(page) - 1) * Number(limit);
+
+  try {
+    let where = 'WHERE 1=1';
+    const params: unknown[] = [];
+    if (category)  { where += ' AND i.category_id = ?'; params.push(category); }
+    if (location)  { where += ' AND i.location_id = ?'; params.push(location); }
+    if (status)    { where += ' AND i.status = ?';      params.push(status); }
+
+    const [countRows] = await pool.query<RowDataPacket[]>(
+      `SELECT COUNT(*) AS total FROM items i ${where}`, params
+    );
+    const total = (countRows[0] as RowDataPacket).total as number;
+
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT i.*, c.name AS category_name, l.name AS location_name,
+              u.name AS responsible_user_name
+       FROM items i
+       LEFT JOIN categories c ON c.id = i.category_id
+       LEFT JOIN locations  l ON l.id = i.location_id
+       LEFT JOIN users      u ON u.id = i.responsible_user_id
+       ${where}
+       ORDER BY i.updated_at DESC
+       LIMIT ? OFFSET ?`,
+      [...params, Number(limit), offset]
+    );
+
+    res.json({ data: rows, total, page: Number(page), limit: Number(limit) });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: { code: 'DB_ERROR', message: '查询失败' } });
   }
+});
+
+// ============================================================
+// GET /api/items/:id — 详情
+// ============================================================
+router.get('/:id', authenticate, async (req, res) => {
+  try {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT i.*, c.name AS category_name, l.name AS location_name,
+              u.name AS responsible_user_name
+       FROM items i
+       LEFT JOIN categories c ON c.id = i.category_id
+       LEFT JOIN locations  l ON l.id = i.location_id
+       LEFT JOIN users      u ON u.id = i.responsible_user_id
+       WHERE i.id = ?`,
+      [req.params.id]
+    );
+    if (!rows.length) {
+      res.status(404).json({ error: { code: 'NOT_FOUND', message: '物品不存在' } });
+      return;
+    }
+    // 附带别名
+    const [aliases] = await pool.query<RowDataPacket[]>(
+      'SELECT * FROM item_aliases WHERE item_id = ?', [req.params.id]
+    );
+    res.json({ ...rows[0], aliases });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: { code: 'DB_ERROR', message: '查询失败' } });
+  }
+});
+
+// ============================================================
+// POST /api/items — 新建（需要 edit 权限）
+// ============================================================
+router.post('/', authenticate, requirePermission('edit'), async (req, res) => {
+  const {
+    name, aliases, category_id, location_id, status = 'in_stock',
+    dog_id, expiry_date, photo_url, responsible_user_id, notes,
+    quantity = 1, unit = '个',
+  } = req.body;
+
+  if (!name || !category_id) {
+    res.status(400).json({ error: { code: 'VALIDATION', message: '物品名称和分类为必填项' } });
+    return;
+  }
+
+  const id = uuidv4();
+  try {
+    await pool.query(
+      `INSERT INTO items
+        (id, name, aliases, category_id, location_id, status, dog_id,
+         expiry_date, photo_url, responsible_user_id, notes, quantity, unit, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, name, aliases ? JSON.stringify(aliases) : null, category_id,
+       location_id, status, dog_id, expiry_date, photo_url,
+       responsible_user_id, notes, quantity, unit, req.user!.id]
+    );
+
+    // 保存别名到 item_aliases 表
+    if (Array.isArray(aliases) && aliases.length) {
+      const aliasRows = aliases.map((a: { alias: string; alias_type?: string }) => [
+        uuidv4(), id, a.alias, a.alias_type ?? 'colloquial'
+      ]);
+      await pool.query(
+        'INSERT INTO item_aliases (id, item_id, alias, alias_type) VALUES ?',
+        [aliasRows]
+      );
+    }
+
+    res.status(201).json({ id, message: '创建成功' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: { code: 'DB_ERROR', message: '创建失败' } });
+  }
+});
+
+// ============================================================
+// PUT /api/items/:id — 更新（需要 edit 权限）
+// ============================================================
+router.put('/:id', authenticate, requirePermission('edit'), async (req, res) => {
+  const { id } = req.params;
+  const {
+    name, aliases, category_id, location_id, status,
+    dog_id, expiry_date, photo_url, responsible_user_id,
+    notes, quantity, unit, last_confirmed_at,
+  } = req.body;
+
+  try {
+    const [result] = await pool.query<ResultSetHeader>(
+      `UPDATE items SET
+        name = COALESCE(?, name),
+        aliases = COALESCE(?, aliases),
+        category_id = COALESCE(?, category_id),
+        location_id = COALESCE(?, location_id),
+        status = COALESCE(?, status),
+        dog_id = COALESCE(?, dog_id),
+        expiry_date = COALESCE(?, expiry_date),
+        photo_url = COALESCE(?, photo_url),
+        responsible_user_id = COALESCE(?, responsible_user_id),
+        notes = COALESCE(?, notes),
+        quantity = COALESCE(?, quantity),
+        unit = COALESCE(?, unit),
+        last_confirmed_at = COALESCE(?, last_confirmed_at),
+        last_confirmed_by = COALESCE(?, last_confirmed_by)
+       WHERE id = ?`,
+      [name, aliases ? JSON.stringify(aliases) : null,
+       category_id, location_id, status, dog_id, expiry_date,
+       photo_url, responsible_user_id, notes, quantity, unit,
+       last_confirmed_at, last_confirmed_at ? req.user!.id : null, id]
+    );
+
+    if (result.affectedRows === 0) {
+      res.status(404).json({ error: { code: 'NOT_FOUND', message: '物品不存在' } });
+      return;
+    }
+    res.json({ message: '更新成功' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: { code: 'DB_ERROR', message: '更新失败' } });
+  }
+});
+
+// ============================================================
+// DELETE /api/items/:id — 删除（需要 manage 权限）
+// ============================================================
+router.delete('/:id', authenticate, requirePermission('manage'), async (req, res) => {
+  try {
+    const [result] = await pool.query<ResultSetHeader>(
+      'DELETE FROM items WHERE id = ?', [req.params.id]
+    );
+    if (result.affectedRows === 0) {
+      res.status(404).json({ error: { code: 'NOT_FOUND', message: '物品不存在' } });
+      return;
+    }
+    res.json({ message: '删除成功' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: { code: 'DB_ERROR', message: '删除失败' } });
+  }
+});
+
+// ============================================================
+// POST /api/items/import — Excel 批量导入（需要 edit 权限）
+//
+// Body (multipart/form-data):
+//   file          — .xlsx 文件（必须使用模板格式）
+//   locationId    — 可选，按区域导入时覆盖所有行的位置
+//   skipDuplicates — 可选，'false' 时不跳过重复项（默认 true）
+// ============================================================
+router.post('/import', authenticate, requirePermission('edit'), upload.single('file'), async (req, res) => {
   if (!req.file) {
-    return res.status(400).json({ error: { code: 'NO_FILE', message: '未接收到图片' } });
+    res.status(400).json({ error: { code: 'NO_FILE', message: '请上传 Excel 文件（.xlsx）' } });
+    return;
   }
-  // Mock：将图片转为 base64 data URL 存入 imageUrl（生产环境改为上传 OSS 返回 URL）
-  const base64 = req.file.buffer.toString('base64');
-  const dataUrl = `data:${req.file.mimetype};base64,${base64}`;
-  MOCK_ITEMS[idx].imageUrl = dataUrl;
-  MOCK_ITEMS[idx].lastVerifiedAt = new Date().toISOString();
-  MOCK_ITEMS[idx].updatedAt = new Date().toISOString();
-  const { aliases, pinyinFull, pinyinInitials, ...item } = MOCK_ITEMS[idx];
-  res.json({ imageUrl: dataUrl, item });
+
+  const { locationId, skipDuplicates = 'true' } = req.body as Record<string, string>;
+
+  try {
+    // Step 1: 解析 + 校验
+    const { valid, errors: parseErrors } = await ExcelImportService.parseAndValidate(req.file.buffer);
+
+    if (valid.length === 0 && parseErrors.length === 0) {
+      res.status(400).json({ error: { code: 'EMPTY_FILE', message: 'Excel 文件无有效数据行' } });
+      return;
+    }
+
+    // Step 2: 写库
+    const result = await ExcelImportService.importRows(valid, {
+      locationId:     locationId || undefined,
+      skipDuplicates: skipDuplicates !== 'false',
+      createdBy:      req.user!.id,
+    });
+
+    // 合并解析阶段的错误
+    const allErrors = [...parseErrors, ...result.errors];
+
+    res.json({
+      message: `导入完成：成功 ${result.success} 条，跳过 ${result.skipped} 条，失败 ${allErrors.length} 条`,
+      success:  result.success,
+      skipped:  result.skipped,
+      failed:   allErrors.length,
+      errors:   allErrors,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: { code: 'IMPORT_ERROR', message: '导入失败，请检查文件格式' } });
+  }
 });
 
 export default router;
