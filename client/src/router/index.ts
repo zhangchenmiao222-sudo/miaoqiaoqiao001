@@ -28,6 +28,16 @@ const router = createRouter({
       name: 'Scan',
       component: () => import('@/views/Scan.vue'),
     },
+    {
+      path: '/browse',
+      name: 'Browse',
+      component: () => import('@/views/Browse.vue'),
+    },
+    {
+      path: '/onboarding',
+      name: 'Onboarding',
+      component: () => import('@/views/Onboarding.vue'),
+    },
   ],
 });
 
