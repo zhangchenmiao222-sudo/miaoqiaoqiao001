@@ -11,13 +11,29 @@
     </div>
 
     <!-- 功能快捷入口 -->
-    <van-grid :column-num="5" :border="false" class="quick-nav">
+    <van-grid :column-num="isManager ? 5 : 5" :border="false" class="quick-nav">
       <van-grid-item icon="scan" text="扫码" to="/scan" />
       <van-grid-item icon="search" text="搜索" to="/search" />
       <van-grid-item icon="map-marked" text="地图" to="/map" />
       <van-grid-item icon="apps-o" text="浏览" to="/browse" />
       <van-grid-item icon="flag-o" text="测验" to="/quiz" />
     </van-grid>
+
+    <!-- 管理驾驶舱入口（仅管理层可见） -->
+    <template v-if="isManager">
+      <div class="section-header">
+        <span>管理工具</span>
+      </div>
+      <van-cell-group inset>
+        <van-cell
+          title="管理驾驶舱"
+          label="库存概览 · 异常预警 · 数据图表"
+          icon="bar-chart-o"
+          is-link
+          to="/dashboard"
+        />
+      </van-cell-group>
+    </template>
 
     <!-- 收藏物品 -->
     <template v-if="favStore.favorites.length > 0">
@@ -72,15 +88,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useFavoritesStore } from '@/stores/favorites';
+import { useAuthStore } from '@/stores/auth';
 
 const ONBOARDING_KEY = 'onboarding_done';
 
 const router = useRouter();
 const keyword = ref('');
 const favStore = useFavoritesStore();
+const authStore = useAuthStore();
+const isManager = computed(() => authStore.user?.role === 'manager');
 
 function onSearch(kw?: string) {
   const q = (kw ?? keyword.value).trim();

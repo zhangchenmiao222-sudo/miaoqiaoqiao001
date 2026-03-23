@@ -51,6 +51,12 @@ const router = createRouter({
       name: 'ApplyControlled',
       component: () => import('@/views/ApplyControlled.vue'),
     },
+    {
+      path: '/dashboard',
+      name: 'Dashboard',
+      component: () => import('@/views/Dashboard.vue'),
+      meta: { managerOnly: true },
+    },
   ],
 });
 
