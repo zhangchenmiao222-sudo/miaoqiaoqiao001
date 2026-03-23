@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { isLoggedIn } from '@/utils/lark-auth';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -29,16 +30,27 @@ const router = createRouter({
       component: () => import('@/views/Scan.vue'),
     },
     {
-      path: '/browse',
-      name: 'Browse',
-      component: () => import('@/views/Browse.vue'),
+      path: '/auth/callback',
+      name: 'AuthCallback',
+      component: () => import('@/views/AuthCallback.vue'),
+      meta: { public: true },
     },
     {
-      path: '/onboarding',
-      name: 'Onboarding',
-      component: () => import('@/views/Onboarding.vue'),
+      path: '/login',
+      name: 'Login',
+      component: () => import('@/views/Login.vue'),
+      meta: { public: true },
     },
   ],
+});
+
+// 路由守卫：未登录自动跳转登录页
+router.beforeEach((to) => {
+  if (to.meta.public) return true;
+  if (!isLoggedIn()) {
+    return { name: 'Login' };
+  }
+  return true;
 });
 
 export default router;
