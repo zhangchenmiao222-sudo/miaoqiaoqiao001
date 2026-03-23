@@ -2,6 +2,13 @@
   <div class="map-page">
     <van-nav-bar title="厂区地图" left-arrow @click-left="$router.back()">
       <template #right>
+        <van-icon
+          name="guide-o"
+          size="18"
+          :color="routeMode ? '#1976d2' : '#666'"
+          style="margin-right:12px"
+          @click="toggleRouteMode"
+        />
         <van-icon name="search" size="18" @click="toggleSearch" />
       </template>
     </van-nav-bar>
@@ -186,6 +193,40 @@
           </pattern>
         </defs>
 
+        <!-- 动线路径 -->
+        <polyline
+          v-if="routeMode && optimizedRoute.length >= 2"
+          :points="optimizedRoute.map(r => `${roomCenterX(r)},${roomCenterY(r)}`).join(' ')"
+          fill="none"
+          stroke="#1976d2"
+          stroke-width="2.5"
+          stroke-dasharray="8,5"
+          stroke-linecap="round"
+          opacity="0.85"
+        />
+
+        <!-- 路线停靠点编号徽章 -->
+        <g v-for="(room, idx) in optimizedRoute" :key="room.id + '-routebadge'">
+          <circle
+            :cx="roomCenterX(room)"
+            :cy="roomCenterY(room)"
+            r="10"
+            fill="#1976d2"
+            stroke="white"
+            stroke-width="1.5"
+          />
+          <text
+            :x="roomCenterX(room)"
+            :y="roomCenterY(room)"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-size="8"
+            fill="white"
+            font-weight="bold"
+            pointer-events="none"
+          >{{ idx + 1 }}</text>
+        </g>
+
         <!-- 指北针（中部空地区域） -->
         <g transform="translate(245, 60)">
           <circle cx="0" cy="0" r="15" fill="white" stroke="#aaa" stroke-width="1" opacity="0.9"/>
@@ -206,6 +247,41 @@
       <div class="scale-hint">{{ Math.round(transform.scale * 100) }}%</div>
     </div>
 
+    <!-- 路线规划操作栏 -->
+    <transition name="slide-up">
+      <div v-if="routeMode" class="route-bar">
+        <div class="route-bar-top">
+          <span class="route-title">
+            <van-icon name="guide-o" color="#1976d2" size="14" style="margin-right:4px"/>
+            路线规划
+            <span class="route-hint">（点击地图选择房间）</span>
+          </span>
+          <van-button size="mini" plain type="default" @click="clearRoute">清除</van-button>
+        </div>
+
+        <div v-if="optimizedRoute.length === 0" class="route-empty">
+          请点击地图上的房间来添加停靠点
+        </div>
+        <template v-else>
+          <div class="route-stops-scroll">
+            <span
+              v-for="(room, idx) in optimizedRoute"
+              :key="room.id"
+              class="route-stop-chip"
+            >
+              <span class="route-num">{{ idx + 1 }}</span>{{ room.name }}
+            </span>
+          </div>
+          <div v-if="optimizedRoute.length >= 2" class="route-footer">
+            <van-icon name="clock-o" size="12" color="#666" />
+            <span class="route-time-text">{{ estimatedTime }}</span>
+            <span class="route-dist-text">（步行约 {{ Math.round(totalRouteDist * 0.1) }} m）</span>
+          </div>
+          <div v-else class="route-footer route-hint">再选一个房间即可规划路线</div>
+        </template>
+      </div>
+    </transition>
+
     <!-- 房间详情弹层 -->
     <van-popup
       v-model:show="showPopup"
@@ -219,8 +295,7 @@
           <span class="zone-dot" :style="{ background: zoneColor(selectedRoom.zone) }" />
           <span class="room-title">{{ selectedRoom.name }}</span>
           <van-tag
-            :type="statusTagType(selectedRoom.dataStatus)"
-            size="small"
+            :type="(statusTagType(selectedRoom.dataStatus) as any)"
             class="status-tag"
           >{{ statusLabel(selectedRoom.dataStatus) }}</van-tag>
         </div>
@@ -253,7 +328,7 @@
               @click="goToItem(item.id)"
             >
               <template #right-icon>
-                <van-tag :type="itemTagType(item.status)" plain size="small" style="margin-right:8px">
+                <van-tag :type="(itemTagType(item.status) as any)" plain style="margin-right:8px">
                   {{ item.status }}
                 </van-tag>
                 <van-icon name="arrow" />
@@ -327,6 +402,10 @@ const showPopup = ref(false)
 const selectedRoomId = ref('')
 const highlightedRoomId = ref('')
 const containerRef = ref<HTMLElement | null>(null)
+
+// ── Route navigation state ─────────────────────────────────────────────────────
+const routeMode = ref(false)
+const routeStops = ref<Room[]>([])
 
 const selectedRoom = computed<Room | null>(
   () => mapData.rooms.find(r => r.id === selectedRoomId.value) ?? null
@@ -472,6 +551,16 @@ function fitToContainer() {
 // ── Room click ────────────────────────────────────────────────────────────────
 
 function onRoomClick(room: Room) {
+  if (routeMode.value) {
+    // Toggle room in route stops
+    const idx = routeStops.value.findIndex(r => r.id === room.id)
+    if (idx >= 0) {
+      routeStops.value.splice(idx, 1)
+    } else {
+      routeStops.value.push(room)
+    }
+    return
+  }
   selectedRoomId.value = room.id
   showPopup.value = true
 }
@@ -479,6 +568,61 @@ function onRoomClick(room: Room) {
 function goToItem(id: string) {
   router.push({ name: 'ItemDetail', params: { id } })
 }
+
+// ── Route navigation helpers ───────────────────────────────────────────────────
+
+function toggleRouteMode() {
+  routeMode.value = !routeMode.value
+  if (!routeMode.value) clearRoute()
+  // Close popup if open when entering route mode
+  if (routeMode.value) showPopup.value = false
+}
+
+function clearRoute() {
+  routeStops.value = []
+}
+
+function roomCenterX(room: Room) { return room.x + room.width  / 2 }
+function roomCenterY(room: Room) { return room.y + room.height / 2 }
+
+function manhattanDist(a: Room, b: Room) {
+  return Math.abs(roomCenterX(a) - roomCenterX(b)) + Math.abs(roomCenterY(a) - roomCenterY(b))
+}
+
+// Nearest-neighbor heuristic: greedy TSP starting from first selected room
+const optimizedRoute = computed<Room[]>(() => {
+  const stops = routeStops.value
+  if (stops.length <= 2) return [...stops]
+  const result = [stops[0]]
+  const remaining = stops.slice(1)
+  while (remaining.length > 0) {
+    const last = result[result.length - 1]
+    let nearestIdx = 0
+    let minDist = Infinity
+    for (let i = 0; i < remaining.length; i++) {
+      const d = manhattanDist(last, remaining[i])
+      if (d < minDist) { minDist = d; nearestIdx = i }
+    }
+    result.push(remaining.splice(nearestIdx, 1)[0])
+  }
+  return result
+})
+
+// Total Manhattan distance of optimized route (SVG units; 1 unit ≈ 0.1 m)
+const totalRouteDist = computed<number>(() => {
+  const r = optimizedRoute.value
+  let d = 0
+  for (let i = 1; i < r.length; i++) d += manhattanDist(r[i - 1], r[i])
+  return d
+})
+
+// Format as "约X分X秒" (walking speed: 1 SVG unit = 0.1 m, 1 m/s)
+const estimatedTime = computed<string>(() => {
+  const seconds = Math.round(totalRouteDist.value * 0.1)
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  return m > 0 ? `约 ${m} 分 ${s} 秒` : `约 ${s} 秒`
+})
 
 // ── Search & highlight ────────────────────────────────────────────────────────
 
@@ -810,5 +954,106 @@ function itemTagType(s: string): string {
 .items-count {
   font-size: 12px;
   color: #aaa;
+}
+
+/* ── Route bar ──────────────────────────────────────────────────────────────── */
+
+.route-bar {
+  background: #fff;
+  border-top: 1px solid #e0e0e0;
+  padding: 10px 12px;
+  flex-shrink: 0;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+}
+
+.route-bar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.route-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1976d2;
+  display: flex;
+  align-items: center;
+}
+
+.route-hint {
+  font-size: 11px;
+  color: #aaa;
+  font-weight: 400;
+}
+
+.route-empty {
+  font-size: 12px;
+  color: #bbb;
+  text-align: center;
+  padding: 4px 0;
+}
+
+.route-stops-scroll {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.route-stop-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #e3f0ff;
+  border-radius: 12px;
+  padding: 3px 10px 3px 4px;
+  white-space: nowrap;
+  font-size: 12px;
+  color: #1976d2;
+  flex-shrink: 0;
+}
+
+.route-num {
+  width: 18px;
+  height: 18px;
+  background: #1976d2;
+  border-radius: 50%;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.route-footer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #666;
+}
+
+.route-time-text {
+  font-weight: 600;
+  color: #1976d2;
+}
+
+.route-dist-text {
+  color: #aaa;
+}
+
+/* Slide-up transition for route bar */
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.25s ease;
+}
+
+.slide-up-enter-from,
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(100%);
 }
 </style>

@@ -11,6 +11,7 @@
   "dependencies": {
     "@vant/use": "^1.6.0",
     "axios": "^1.6.0",
+    "echarts": "^6.0.0",
     "html5-qrcode": "^2.3.8",
     "pinia": "^2.1.0",
     "pinyin-pro": "^3.28.0",
